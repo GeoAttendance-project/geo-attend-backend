@@ -23,14 +23,13 @@ export const login = catchAsync(async (req, res, next) => {
   );
 
   if (!student) {
-    return next(new AppError("Student not found", 404));
+    return next(new AppError("Incorrect username or password", 404));
   }
-  console.log(student);
 
   const isPasswordCorrect = await bcrypt.compare(password, student.password);
 
   if (!isPasswordCorrect) {
-    return next(new AppError("Incorrect password", 401));
+    return next(new AppError("Incorrect username or password", 401));
   }
 
   const token = jwt.sign({ id: student._id }, process.env.JWT_SECRET, {

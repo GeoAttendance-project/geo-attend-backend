@@ -14,10 +14,16 @@ const attendanceLocationSchema = new mongoose.Schema(
       max: 4,
     },
     geoLocation: {
-        type: [Number],
+      type: { 
+        type: String, 
+        default: "Point", 
+        enum: ["Point"] 
+      },
+      coordinates: {
+        type: [Number], 
         required: true,
+      }
     },
-
     radius: {
       type: String,
       required: true,
@@ -28,6 +34,7 @@ const attendanceLocationSchema = new mongoose.Schema(
   }
 );
 
+// Create 2dsphere index on geoLocation to enable geospatial queries
 attendanceLocationSchema.index({ geoLocation: "2dsphere" });
 
 const AttendanceLocation = mongoose.model(
