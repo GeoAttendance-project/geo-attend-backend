@@ -11,7 +11,18 @@ import adminRouter from "./routes/admin/adminRoutes.js"
 
 const PORT = process.env.PORT || 3000;
 const app = express();
-app.use(cors())
+const allowedOrigins = ['http://localhost:5173'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, origin);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('DB Connected!'));
   
