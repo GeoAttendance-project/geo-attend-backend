@@ -57,7 +57,7 @@ export const getAllStudents = catchAsync(async (req, res, next) => {
   }
 
   res.status(200).json({
-    stauts: "success",
+    status: "success",
     data: students,
   });
 });
