@@ -6,7 +6,6 @@ import { addAdminValidator } from "../../validators/admin/addAdmin.validator.js"
 import Admin from "../../models/admin/adminModel.js";
 
 export const addAdmin = catchAsync(async (req, res, next) => {
-  console.log(req.body);
 
   // Validate request body using admin validators
   await Promise.all(addAdminValidator.map((validator) => validator.run(req)));

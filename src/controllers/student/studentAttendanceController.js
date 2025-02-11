@@ -5,7 +5,6 @@ import AppError from "../../utils/appError.js";
 import { catchAsync } from "../../utils/catchAsync.js";
 
 export const markAttendance = catchAsync(async (req, res, next) => {
-  console.log(req.body);
   const { latitude, longitude } = req.body;
   const studentId = req.student._id;
 

@@ -60,7 +60,6 @@ export const protect = catchAsync(async (req, res, next) => {
   }
 
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-console.log(decoded);
   const student = await Student.findById(decoded.id);
   if (!student) {
     return next(new AppError('The student belonging to this token no longer exists.', 401));

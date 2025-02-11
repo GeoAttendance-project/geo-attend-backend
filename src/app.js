@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import morgan from "morgan";
+import cors from "cors"
 import bodyParser from "body-parser";
 dotenv.config();
 import errorController from "./controllers/error/errorController.js"
@@ -10,7 +11,7 @@ import adminRouter from "./routes/admin/adminRoutes.js"
 
 const PORT = process.env.PORT || 3000;
 const app = express();
-
+app.use(cors())
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('DB Connected!'));
   

@@ -9,9 +9,8 @@ import {
   addStudentValidator,
   studentUpdateValidator,
 } from "../../validators/admin/admin.student.validator.js";
-
+import adminEventEmitter from "../../helpers/adminEventEmitter.js";
 export const addStudent = catchAsync(async (req, res, next) => {
-  console.log(req.body);
   await Promise.all(addStudentValidator.map((validator) => validator.run(req)));
 
   const errors = validationResult(req);
@@ -33,6 +32,13 @@ export const addStudent = catchAsync(async (req, res, next) => {
     year,
     password: rawPassword,
   });
+  adminEventEmitter.emit(
+    "send_username_password_student",
+    student.email,
+    student.firstName,
+    student.username,
+    rawPassword
+  );
 
   res.status(201).json({
     status: "success",
@@ -81,7 +87,6 @@ export const updateStudent = catchAsync(async (req, res, next) => {
 
   const { id, firstName, lastName, email, username, rollno, department, year } =
     matchedData(req, { locations: ["body", "params"] });
-  console.log(id);
   const student = await Student.findById(id);
   if (!student) {
     return next(new AppError("Student not found", 404));
