@@ -3,7 +3,7 @@ import AppError from "../../utils/appError.js";
 import { catchAsync } from "../../utils/catchAsync.js";
 
 export const addAttendanceLocation = catchAsync(async (req, res, next) => {
-  const { department, year, latitude, longitude, radius } = req.body;
+  const { department, year, radius, geoLocation } = req.body;
 
   if (!department || !year || !geoLocation || !radius) {
     return next(new AppError("All fields are required", 400));
