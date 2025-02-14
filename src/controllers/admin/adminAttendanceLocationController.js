@@ -22,13 +22,14 @@ export const addAttendanceLocation = catchAsync(async (req, res, next) => {
   const location = await AttendanceLocation.create({
     department,
     year,
-    geoLocation:[latitude,longitude],
+    geoLocation,
     radius,
   });
 
   res.status(201).json({
     status: "success",
     message: "Attendance location set successfully!",
+    data: location,
   });
 });
 
