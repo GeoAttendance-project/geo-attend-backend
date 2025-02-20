@@ -34,11 +34,17 @@ export const addAttendanceLocation = catchAsync(async (req, res, next) => {
 });
 
 export const updateAttendanceLocation = catchAsync(async (req, res, next) => {
-  const { department, year, latitude, longitude, radius } = req.body;
+  const { department, year, geoLocation, radius } = req.body;
+
+  if (!geoLocation) {
+    return next(
+      new AppError("Latitude, longitude, and radius are required", 400)
+    );
+  }
 
   const location = await AttendanceLocation.findOneAndUpdate(
     { department, year },
-    { location: { latitude, longitude }, radius },
+    { geoLocation: geoLocation },
     { new: true, runValidators: true }
   );
 
@@ -54,6 +60,7 @@ export const updateAttendanceLocation = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "Attendance location updated successfully!",
+    data: location,
   });
 });
 
@@ -68,27 +75,20 @@ export const getAttendanceLocation = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    data: {
-      department: location.department,
-      year: location.year,
-      location: location.location,
-      radius: location.radius,
-    },
+    data: location,
   });
 });
 
 export const getAllAttendanceLocations = catchAsync(async (req, res, next) => {
   const locations = await AttendanceLocation.find().select("-__v");
 
-  if (locations.length === 0) {
+  if (!locations.length) {
     return next(new AppError("No attendance locations found", 404));
   }
 
   res.status(200).json({
     status: "success",
     results: locations.length,
-    data: {
-      locations,
-    },
+    data: locations,
   });
 });

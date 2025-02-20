@@ -1,13 +1,8 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 const studentSchema = new mongoose.Schema(
   {
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    lastName: {
+    name: {
       type: String,
       required: true,
       trim: true,
@@ -15,24 +10,17 @@ const studentSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
     },
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-    rollno: {
+    examNo: {
       type: String,
       required: true,
     },
     password: {
       type: String,
       required: true,
-      select:false
+      select: false,
     },
     department: {
       type: String,
@@ -44,6 +32,11 @@ const studentSchema = new mongoose.Schema(
       required: true,
       min: 2,
       max: 4,
+    },
+    isActive: {
+      type: Boolean,
+      required: true,
+      default: true,
     },
   },
   {

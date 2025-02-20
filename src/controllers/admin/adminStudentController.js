@@ -18,16 +18,22 @@ export const addStudent = catchAsync(async (req, res, next) => {
     return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
   }
 
-  const { firstName, lastName, email, username, rollno, department, year } =
-    matchedData(req);
-  const rawPassword = `${username}-${crypto.randomBytes(4).toString("hex")}`;
+  const { name, email, examNo, department, year } = matchedData(req);
+
+  const existingStudent = await Student.findOne({
+    $or: [{ email }, { examNo }],
+    isActive: true,
+  });
+
+  if (existingStudent) {
+    return next(new AppError("Student with this email, exam number, or roll number already exists.", 400));
+  }
+  const rawPassword = `${examNo}@csice`;
 
   const student = await Student.create({
-    firstName,
-    lastName,
+    name,
     email,
-    username,
-    rollno,
+    examNo,
     department,
     year,
     password: rawPassword,
@@ -35,8 +41,8 @@ export const addStudent = catchAsync(async (req, res, next) => {
   adminEventEmitter.emit(
     "send_username_password_student",
     student.email,
-    student.firstName,
-    student.username,
+    student.name,
+    student.examNo,
     rawPassword
   );
 
@@ -44,14 +50,14 @@ export const addStudent = catchAsync(async (req, res, next) => {
     status: "success",
     message: "Student added successfully!",
     data: {
-      username: student.username,
+      username: student.examNo,
       password: rawPassword,
     },
   });
 });
 
 export const getAllStudents = catchAsync(async (req, res, next) => {
-  const students = await Student.find({});
+  const students = await Student.find({ isActive: true });
   if (!students) {
     return next(new AppError("No Students available", 404));
   }
@@ -85,20 +91,42 @@ export const updateStudent = catchAsync(async (req, res, next) => {
     return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
   }
 
-  const { id, firstName, lastName, email, username, rollno, department, year } =
-    matchedData(req, { locations: ["body", "params"] });
+  const { id, name, email, examNo, department, year } = matchedData(
+    req,
+    { locations: ["body", "params"] }
+  );
   const student = await Student.findById(id);
   if (!student) {
     return next(new AppError("Student not found", 404));
   }
 
-  student.firstName = firstName || student.firstName;
-  student.lastName = lastName || student.lastName;
+  student.name = name || student.name;
   student.email = email || student.email;
-  student.username = username || student.username;
-  student.rollno = rollno || student.rollno;
+  student.examNo = examNo || student.examNo;
   student.department = department || student.department;
   student.year = year || student.year;
+
+  await student.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Student updated successfully!",
+    data: {
+      student,
+    },
+  });
+});
+
+export const deleteStudent = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const student = await Student.findByIdAndUpdate(
+    { _id: id },
+    { isActive: false },
+    { upsert: true }
+  );
+  if (!student) {
+    return next(new AppError("Student not found", 404));
+  }
 
   await student.save();
 

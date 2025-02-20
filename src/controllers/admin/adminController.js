@@ -4,9 +4,9 @@ import { catchAsync } from "../../utils/catchAsync.js";
 import crypto from "crypto";
 import { addAdminValidator } from "../../validators/admin/addAdmin.validator.js";
 import Admin from "../../models/admin/adminModel.js";
+import adminEventEmitter from "../../helpers/adminEventEmitter.js";
 
 export const addAdmin = catchAsync(async (req, res, next) => {
-
   // Validate request body using admin validators
   await Promise.all(addAdminValidator.map((validator) => validator.run(req)));
 
@@ -30,7 +30,12 @@ export const addAdmin = catchAsync(async (req, res, next) => {
   const checkUsernameAvailability = await Admin.findOne({ username: username });
 
   if (checkUsernameAvailability) {
-    return next(new AppError("Username already Exists. Please try different username", 400));
+    return next(
+      new AppError(
+        "Username already Exists. Please try different username",
+        400
+      )
+    );
   }
 
   // Create the admin with the generated password
@@ -41,6 +46,14 @@ export const addAdmin = catchAsync(async (req, res, next) => {
     username,
     password: rawPassword,
   });
+  
+  adminEventEmitter.emit(
+    "send_username_password_student",
+    admin.email,
+    admin.firstName,
+    admin.username,
+    rawPassword
+  );
 
   res.status(201).json({
     status: "success",
@@ -48,6 +61,17 @@ export const addAdmin = catchAsync(async (req, res, next) => {
     data: {
       username: admin.username,
       password: rawPassword,
+    },
+  });
+});
+export const getAdmin = catchAsync(async (req, res, next) => {
+  // Create the admin with the generated password
+  const admins = await Admin.find({});
+
+  res.status(201).json({
+    status: "success",
+    data: {
+      admins,
     },
   });
 });

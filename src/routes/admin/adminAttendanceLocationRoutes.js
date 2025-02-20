@@ -3,6 +3,8 @@ import { addAttendanceLocation, getAllAttendanceLocations, getAttendanceLocation
 const router = express.Router();
 
 router.route("/").get(getAllAttendanceLocations).post(addAttendanceLocation).put(updateAttendanceLocation);
+router.route("/:id").put(updateAttendanceLocation);
+
 router.route("/:department/:year").get(getAttendanceLocation).put();
 
 export default router;

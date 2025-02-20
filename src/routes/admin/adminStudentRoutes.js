@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addStudent,
+  deleteStudent,
   getAllStudents,
   getAStudent,
   updateStudent,
@@ -8,6 +9,6 @@ import {
 const router = express.Router();
 
 router.route("/").get(getAllStudents).post(addStudent);
-router.route("/:id").get(getAStudent).put(updateStudent);
+router.route("/:id").get(getAStudent).put(updateStudent).delete(deleteStudent);
 
 export default router;
