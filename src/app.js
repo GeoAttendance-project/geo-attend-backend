@@ -11,7 +11,7 @@ import adminRouter from "./routes/admin/adminRoutes.js"
 
 const PORT = process.env.PORT || 3000;
 const app = express();
-const allowedOrigins = ['http://localhost:5173','http://192.168.142.25:5173'];
+const allowedOrigins = ['http://localhost:5173','https://admin.csiceattendance.tech'];
 
 app.use(cors({
   origin: function (origin, callback) {
