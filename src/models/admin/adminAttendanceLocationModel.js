@@ -26,7 +26,7 @@ const attendanceLocationSchema = new mongoose.Schema(
     },
     radius: {
       type: String,
-      required: true,
+      default:"10"
     },
   },
   {

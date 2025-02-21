@@ -26,7 +26,12 @@ export const addStudent = catchAsync(async (req, res, next) => {
   });
 
   if (existingStudent) {
-    return next(new AppError("Student with this email, exam number, or roll number already exists.", 400));
+    return next(
+      new AppError(
+        "Student with this email, exam number, or roll number already exists.",
+        400
+      )
+    );
   }
   const rawPassword = `${examNo}@csice`;
 
@@ -57,7 +62,18 @@ export const addStudent = catchAsync(async (req, res, next) => {
 });
 
 export const getAllStudents = catchAsync(async (req, res, next) => {
-  const students = await Student.find({ isActive: true });
+  const { year, department } = req.query;
+  const filter = { isActive: true };
+
+  if (department) {
+    filter.department = department;
+  }
+
+  if (year && year !== "all") {
+    filter.year = parseInt(year);
+  }
+
+  const students = await Student.find(filter);
   if (!students) {
     return next(new AppError("No Students available", 404));
   }
@@ -91,10 +107,9 @@ export const updateStudent = catchAsync(async (req, res, next) => {
     return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
   }
 
-  const { id, name, email, examNo, department, year } = matchedData(
-    req,
-    { locations: ["body", "params"] }
-  );
+  const { id, name, email, examNo, department, year } = matchedData(req, {
+    locations: ["body", "params"],
+  });
   const student = await Student.findById(id);
   if (!student) {
     return next(new AppError("Student not found", 404));

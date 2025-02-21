@@ -4,8 +4,8 @@ import { catchAsync } from "../../utils/catchAsync.js";
 
 export const addAttendanceLocation = catchAsync(async (req, res, next) => {
   const { department, year, radius, geoLocation } = req.body;
-
-  if (!department || !year || !geoLocation || !radius) {
+console.log(geoLocation)
+  if (!department || !year || !geoLocation) {
     return next(new AppError("All fields are required", 400));
   }
 
@@ -34,7 +34,7 @@ export const addAttendanceLocation = catchAsync(async (req, res, next) => {
 });
 
 export const updateAttendanceLocation = catchAsync(async (req, res, next) => {
-  const { department, year, geoLocation, radius } = req.body;
+  const { department, year, geoLocation } = req.body;
 
   if (!geoLocation) {
     return next(

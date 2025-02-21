@@ -15,7 +15,11 @@ export const getAttendanceByDate = catchAsync(async (req, res, next) => {
   const endDate = moment(date, "YYYY-MM-DD").endOf("day").toDate();
 
   // Fetch all students for the given department and year
-  const students = await Student.find({ department, year: parseInt(year), isActive:true });
+  const students = await Student.find({
+    department,
+    year: parseInt(year),
+    isActive: true,
+  });
 
   if (!students.length) {
     return res.status(200).json({
@@ -26,23 +30,28 @@ export const getAttendanceByDate = catchAsync(async (req, res, next) => {
   }
 
   // Fetch attendance for students within the given date range
-  const studentIds = students.map(student => student._id);
+  const studentIds = students.map((student) => student._id);
   const attendanceRecords = await Attendance.find({
     student: { $in: studentIds },
     markedDate: { $gte: startDate, $lte: endDate },
   });
 
   // Create a mapping of student IDs with attendance
-  const attendanceMap = new Set(attendanceRecords.map(record => record.student.toString()));
+  const attendanceMap = new Set(
+    attendanceRecords.map((record) => record.student.toString())
+  );
 
   // Prepare response data
-  const attendanceStatus = students.map(student => ({
+  const attendanceStatus = students.map((student) => ({
     name: student.name,
-    rollNo: student.rollNo, // Ensure correct field name
+    examNo: Number(student.examNo),
     department: student.department,
     year: student.year,
-    present: attendanceMap.has(student._id.toString()), // Check if student is in attendance records
+    present: attendanceMap.has(student._id.toString()),
   }));
+
+  // Sort by roll number
+  attendanceStatus.sort((a, b) => a.examNo - b.examNo);
 
   res.status(200).json({
     status: "success",

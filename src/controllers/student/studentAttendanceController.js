@@ -21,7 +21,7 @@ export const markAttendance = catchAsync(async (req, res, next) => {
 
   const { department, year } = student;
 
-  // Find the geo-point for this department and year
+  // Find the specific geo-location for this department and year
   const geoPoint = await AttendanceLocation.findOne({ department, year });
   if (!geoPoint) {
     return next(
@@ -32,24 +32,37 @@ export const markAttendance = catchAsync(async (req, res, next) => {
     );
   }
 
+  // Ensure allowedCoordinates are in [longitude, latitude] format
+  const allowedCoordinates = geoPoint.geoLocation.coordinates;
+  console.log("Allowed Coordinates:", allowedCoordinates);
+  console.log("Received Coordinates:", [longitude, latitude]);
+
+  // Ensure maxDistance is properly handled (convert radius to meters)
+  const maxDistance = 10; // Convert kilometers to meters
+  console.log("Allowed Max Distance:", maxDistance);
+
+  // Check if student is within the allowed attendance range
   const nearbyPoint = await AttendanceLocation.aggregate([
     {
       $geoNear: {
         near: {
           type: "Point",
-          coordinates: [longitude, latitude], // [longitude, latitude]
+          coordinates: [Number(longitude), Number(latitude)], // Use received coordinates
         },
         distanceField: "distance",
         spherical: true,
-        maxDistance: 20, // Use radius value (in meters)
+        maxDistance: maxDistance,
+        query: { department, year }, // Filter by department and year
       },
     },
   ]);
 
-  // Check if the student is within the attendance range
-  if (!nearbyPoint.length) {
+  console.log("Nearby Point:", nearbyPoint);
+
+  // If no nearby point is found or distance exceeds maxDistance, reject attendance
+  if (!nearbyPoint.length || nearbyPoint[0].distance > maxDistance) {
     return next(
-      new AppError("You are not within the allowed attendance range.", 400)
+      new AppError("You are not within the allowed attendance location.", 400)
     );
   }
 
@@ -98,13 +111,12 @@ export const checkTodayAttendace = catchAsync(async (req, res, next) => {
   });
 });
 
-
-export const getAttendance =catchAsync(async(req,res,next)=>{
-  let studentId = req.student?.id
-  const attenndance = await Attendance.find({student:studentId})
+export const getAttendance = catchAsync(async (req, res, next) => {
+  let studentId = req.student?.id;
+  const attenndance = await Attendance.find({ student: studentId });
   res.status(201).json({
     status: "success",
     message: "Attendance marked successfully!",
-    data:attenndance
+    data: attenndance,
   });
-})
+});
