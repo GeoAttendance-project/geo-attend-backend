@@ -77,6 +77,7 @@ export const getAllStudents = catchAsync(async (req, res, next) => {
   if (!students) {
     return next(new AppError("No Students available", 404));
   }
+  students.sort((a, b) => a.examNo - b.examNo);
 
   res.status(200).json({
     status: "success",
