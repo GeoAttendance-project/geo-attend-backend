@@ -37,8 +37,8 @@ export const markAttendance = catchAsync(async (req, res, next) => {
   console.log("Allowed Coordinates:", allowedCoordinates);
   console.log("Received Coordinates:", [longitude, latitude]);
 
-  // Ensure maxDistance is properly handled (convert radius to meters)
-  const maxDistance = 10; // Convert kilometers to meters
+  // Set maxDistance to 3 meters
+  const maxDistance = 5; // 3 meters
   console.log("Allowed Max Distance:", maxDistance);
 
   // Check if student is within the allowed attendance range
@@ -47,7 +47,7 @@ export const markAttendance = catchAsync(async (req, res, next) => {
       $geoNear: {
         near: {
           type: "Point",
-          coordinates: [Number(longitude), Number(latitude)], // Use received coordinates
+          coordinates: [Number(latitude), Number(longitude)], // Ensure [longitude, latitude]
         },
         distanceField: "distance",
         spherical: true,
