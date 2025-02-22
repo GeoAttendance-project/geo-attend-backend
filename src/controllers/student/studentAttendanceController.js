@@ -38,7 +38,7 @@ export const markAttendance = catchAsync(async (req, res, next) => {
   console.log("Received Coordinates:", [longitude, latitude]);
 
   // Set maxDistance to 3 meters
-  const maxDistance = 5; // 3 meters
+  const maxDistance = 10; // 3 meters
   console.log("Allowed Max Distance:", maxDistance);
 
   // Check if student is within the allowed attendance range
