@@ -12,22 +12,25 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
       default: Date.now,
     },
-    gpsLocation: {
-      latitude: {
-        type: Number,
-        required: true,
+    morning: {
+      gpsLocation: {
+        latitude: { type: Number },
+        longitude: { type: Number },
       },
-      longitude: {
-        type: Number,
-        required: true,
+      markedAt: { type: Date, default: null },
+    },
+    afternoon: {
+      gpsLocation: {
+        latitude: { type: Number },
+        longitude: { type: Number},
       },
+      markedAt: { type: Date, default: null },
     },
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
-
 
 const Attendance = mongoose.model("Attendance", attendanceSchema);
 

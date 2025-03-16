@@ -38,6 +38,7 @@ const studentSchema = new mongoose.Schema(
       required: true,
       default: true,
     },
+    deviceId: { type: String, unique: true },
   },
   {
     timestamps: true,

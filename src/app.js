@@ -8,10 +8,18 @@ dotenv.config();
 import errorController from "./controllers/error/errorController.js"
 import studentRouter from "./routes/student/studentRoutes.js";
 import adminRouter from "./routes/admin/adminRoutes.js"
+import rateLimit from "express-rate-limit";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
 const allowedOrigins = ['http://localhost:5173','https://admin.csiceattendance.tech'];
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
+app.use(limiter);
 
 app.use(cors({
   origin: function (origin, callback) {

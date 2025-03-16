@@ -3,14 +3,23 @@ import Student from "../../models/student/studentModel.js";
 import AppError from "../../utils/appError.js";
 import { catchAsync } from "../../utils/catchAsync.js";
 import Attendance from "../../models/attenndance/attendanceModel.js";
+import { getAttendanceByDateValidator } from "../../validators/admin/admin.student.attendance.validator.js";
+import { matchedData, validationResult } from "express-validator";
 
 export const getAttendanceByDate = catchAsync(async (req, res, next) => {
-  const { department, year, date } = req.query;
+  await Promise.all(
+    getAttendanceByDateValidator.map((validator) => validator.run(req))
+  );
 
-  if (!department || !year || !date) {
-    return next(new AppError("Department, year, and date are required", 400));
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
   }
 
+  const { department, year, date, session } = matchedData(req, {
+    locations: ["body", "query"],
+  });
+console.log(department, year, date, session )
   const startDate = moment(date, "YYYY-MM-DD").startOf("day").toDate();
   const endDate = moment(date, "YYYY-MM-DD").endOf("day").toDate();
 
@@ -36,10 +45,13 @@ export const getAttendanceByDate = catchAsync(async (req, res, next) => {
     markedDate: { $gte: startDate, $lte: endDate },
   });
 
-  // Create a mapping of student IDs with attendance
-  const attendanceMap = new Set(
-    attendanceRecords.map((record) => record.student.toString())
-  );
+  // Create a map of student IDs with their attendance status
+  const attendanceMap = new Map();
+  attendanceRecords.forEach((record) => {
+    if (record[session] && record[session].markedAt) {
+      attendanceMap.set(record.student.toString(), true);
+    }
+  });
 
   // Prepare response data
   const attendanceStatus = students.map((student) => ({
@@ -47,10 +59,10 @@ export const getAttendanceByDate = catchAsync(async (req, res, next) => {
     examNo: Number(student.examNo),
     department: student.department,
     year: student.year,
-    present: attendanceMap.has(student._id.toString()),
+    present: attendanceMap.get(student._id.toString()) || false, // Ensure false if not found
   }));
 
-  // Sort by roll number
+  // Sort by exam number
   attendanceStatus.sort((a, b) => a.examNo - b.examNo);
 
   res.status(200).json({

@@ -1,16 +1,22 @@
+import { matchedData, validationResult } from "express-validator";
 import attendanceAnnouncement from "../../models/admin/adminAnnouncementModel.js";
 import AppError from "../../utils/appError.js";
 import { catchAsync } from "../../utils/catchAsync.js";
+import { addAnnouncementValidator } from "../../validators/admin/admin.announcement.validator.js";
 
 export const postAnnouncement = catchAsync(async (req, res, next) => {
-  const { title, content } = req.body;
+  await Promise.all(
+    addAnnouncementValidator.map((validator) => validator.run(req))
+  );
 
-  if (!title || !content) {
-    next(
-      new AppError("Please provide title and content for the announcemnets")
-    );
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
   }
 
+  const { title, content } = matchedData(req, {
+    locations: ["body", "params"],
+  });
   const announcement = await attendanceAnnouncement.create({
     title,
     content,

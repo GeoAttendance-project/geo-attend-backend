@@ -1,13 +1,23 @@
+import { matchedData, validationResult } from "express-validator";
+import { addAttendanceLocationValidator } from "../../validators/admin/admin.attendance.location.validator.js";
 import AttendanceLocation from "../../models/admin/adminAttendanceLocationModel.js";
 import AppError from "../../utils/appError.js";
 import { catchAsync } from "../../utils/catchAsync.js";
+import { getAttendanceByDateValidator } from "../../validators/admin/admin.student.attendance.validator.js";
 
 export const addAttendanceLocation = catchAsync(async (req, res, next) => {
-  const { department, year, radius, geoLocation } = req.body;
-console.log(geoLocation)
-  if (!department || !year || !geoLocation) {
-    return next(new AppError("All fields are required", 400));
+  await Promise.all(
+    addAttendanceLocationValidator.map((validator) => validator.run(req))
+  );
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
   }
+
+  const { department, year, radius, geoLocation } = matchedData(req, {
+    locations: ["body", "params"],
+  });
 
   const existingLocation = await AttendanceLocation.findOne({
     department,
@@ -34,13 +44,18 @@ console.log(geoLocation)
 });
 
 export const updateAttendanceLocation = catchAsync(async (req, res, next) => {
-  const { department, year, geoLocation } = req.body;
+  await Promise.all(
+    addAttendanceLocationValidator.map((validator) => validator.run(req))
+  );
 
-  if (!geoLocation) {
-    return next(
-      new AppError("Latitude, longitude, and radius are required", 400)
-    );
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
   }
+
+  const { department, year, radius, geoLocation } = matchedData(req, {
+    locations: ["body", "params"],
+  });
 
   const location = await AttendanceLocation.findOneAndUpdate(
     { department, year },
@@ -65,7 +80,18 @@ export const updateAttendanceLocation = catchAsync(async (req, res, next) => {
 });
 
 export const getAttendanceLocation = catchAsync(async (req, res, next) => {
-  const { department, year } = req.params;
+  await Promise.all(
+    getAttendanceByDateValidator.map((validator) => validator.run(req))
+  );
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
+  }
+
+  const { department, year } = matchedData(req, {
+    locations: ["body", "params"],
+  });
 
   const location = await AttendanceLocation.findOne({ department, year });
 

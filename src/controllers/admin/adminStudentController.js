@@ -1,12 +1,11 @@
 import { matchedData, validationResult } from "express-validator";
 import AppError from "../../utils/appError.js";
 import { catchAsync } from "../../utils/catchAsync.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
 import Student from "../../models/student/studentModel.js";
 import {
   addStudentValidator,
+  getAStudentValidator,
+  getStudentsValidator,
   studentUpdateValidator,
 } from "../../validators/admin/admin.student.validator.js";
 import adminEventEmitter from "../../helpers/adminEventEmitter.js";
@@ -62,7 +61,19 @@ export const addStudent = catchAsync(async (req, res, next) => {
 });
 
 export const getAllStudents = catchAsync(async (req, res, next) => {
-  const { year, department } = req.query;
+  await Promise.all(
+    getStudentsValidator.map((validator) => validator.run(req))
+  );
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
+  }
+
+  const { year, department } = matchedData(req, {
+    locations: ["body", "query"],
+  });
+
   const filter = { isActive: true };
 
   if (department) {
@@ -86,7 +97,19 @@ export const getAllStudents = catchAsync(async (req, res, next) => {
 });
 
 export const getAStudent = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
+  await Promise.all(
+    getAStudentValidator.map((validator) => validator.run(req))
+  );
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
+  }
+
+  const { id } = matchedData(req, {
+    locations: ["body", "params"],
+  });
+
   const student = await Student.find({ _id: id });
   if (!student) {
     return next(new AppError("Student Not Found!", 404));
@@ -134,7 +157,18 @@ export const updateStudent = catchAsync(async (req, res, next) => {
 });
 
 export const deleteStudent = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
+  await Promise.all(
+    getAStudentValidator.map((validator) => validator.run(req))
+  );
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
+  }
+
+  const { id } = matchedData(req, {
+    locations: ["body", "params"],
+  });
   const student = await Student.findByIdAndUpdate(
     { _id: id },
     { isActive: false },
