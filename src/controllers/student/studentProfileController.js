@@ -6,7 +6,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
   if (!req.student?._id)
     return next(new AppError("Session Expire please login again!", 401));
 
-  const student = await Student.findById(req.student._id);
+  const student = await Student.findById(req.student._id).select("-deviceId");
 
   if (!student) {
     return next(new AppError("Student not found!", 404));

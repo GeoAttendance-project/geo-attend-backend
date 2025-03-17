@@ -25,7 +25,7 @@ export const requestDeviceChange = catchAsync(async (req, res, next) => {
   // Store the request for admin approval
   await DeviceChangeRequest.create({
     student: studentId,
-    oldDeviceId: student.deviceId,
+    oldDeviceId: student.deviceId || "Not Registered",
     newDeviceId,
     reason,
     status: "PENDING",
