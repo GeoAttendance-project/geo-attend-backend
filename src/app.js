@@ -16,7 +16,7 @@ const allowedOrigins = ['http://localhost:5173','https://admin.csiceattendance.t
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000000,
 });
 
 app.use(limiter);
