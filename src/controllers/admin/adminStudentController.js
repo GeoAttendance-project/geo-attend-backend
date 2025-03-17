@@ -42,13 +42,13 @@ export const addStudent = catchAsync(async (req, res, next) => {
     year,
     password: rawPassword,
   });
-  adminEventEmitter.emit(
-    "send_username_password_student",
-    student.email,
-    student.name,
-    student.examNo,
-    rawPassword
-  );
+  // adminEventEmitter.emit(
+  //   "send_username_password_student",
+  //   student.email,
+  //   student.name,
+  //   student.examNo,
+  //   rawPassword
+  // );
 
   res.status(201).json({
     status: "success",
