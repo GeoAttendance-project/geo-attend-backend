@@ -128,10 +128,9 @@ export const checkTodayAttendance = catchAsync(async (req, res, next) => {
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
-
   const isMorningTime = hours === 9 && minutes >= 0 && minutes <= 15;
-  const isAfternoonTime = hours === 13 && minutes >= 45 && minutes <= 55;
-
+  const isAfternoonTime = (hours === 13 && minutes >= 45 && minutes <= 59) || (hours === 14 && minutes === 0);
+  
   res.status(200).json({
     status: "success",
     message: "Attendance status fetched successfully!",
