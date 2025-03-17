@@ -126,8 +126,8 @@ export const checkTodayAttendance = catchAsync(async (req, res, next) => {
     : false;
 
   const now = new Date();
-  const hours = 13;
-  const minutes = 50;
+  const hours = now.getHours();
+  const minutes = now.getMinutes;
   const isMorningTime = hours === 9 && minutes >= 0 && minutes <= 15;
   const isAfternoonTime = (hours === 13 && minutes >= 45 && minutes <= 59) || (hours === 14 && minutes === 0);
   
