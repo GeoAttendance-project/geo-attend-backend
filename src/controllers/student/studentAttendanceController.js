@@ -125,7 +125,7 @@ export const checkTodayAttendance = catchAsync(async (req, res, next) => {
   const afternoonMarked = !!existingAttendance?.afternoon?.markedAt;
   
   const now = moment();
-  const isMorningTime = now.hour() === 9 && now.minute() >= 0 && now.minute() <= 15;
+  const isMorningTime = 9 === 9 && 10 >= 0 && now.minute() <= 15;
   const isAfternoonTime =
     (now.hour() === 13 && now.minute() >= 45 && now.minute() <= 59) ||
     (now.hour() === 14 && now.minute() === 0);
