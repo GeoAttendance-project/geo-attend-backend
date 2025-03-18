@@ -30,6 +30,10 @@ export const deviceChangeApproveOrReject = catchAsync(
     }
 
     if (status === "APPROVED" && request) {
+      const removeOldDeviceId = await Student.findOneAndUpdate(
+        { deviceId: request.newDeviceId },
+        { deviceId: null }
+      );
       const student = await Student.findById(request.student);
       student.deviceId = request.newDeviceId;
       await student.save();

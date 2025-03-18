@@ -5,6 +5,7 @@ import Student from "../../models/student/studentModel.js";
 import AppError from "../../utils/appError.js";
 import { catchAsync } from "../../utils/catchAsync.js";
 import { studentAttendanceMarkValidator } from "../../validators/student/student.attendance.validator.js";
+import moment from "moment";
 
 export const markAttendance = catchAsync(async (req, res, next) => {
   await Promise.all(
@@ -113,24 +114,22 @@ export const markAttendance = catchAsync(async (req, res, next) => {
 
 export const checkTodayAttendance = catchAsync(async (req, res, next) => {
   const studentId = req.student._id;
-  const markedDate = new Date().toISOString().split("T")[0];
+  const markedDate = moment().format("YYYY-MM-DD");
 
   const existingAttendance = await Attendance.findOne({
     student: studentId,
     markedDate,
   });
 
-  const morningMarked = existingAttendance?.morning?.markedAt ? true : false;
-  const afternoonMarked = existingAttendance?.afternoon?.markedAt
-    ? true
-    : false;
+  const morningMarked = !!existingAttendance?.morning?.markedAt;
+  const afternoonMarked = !!existingAttendance?.afternoon?.markedAt;
 
-  const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const isMorningTime = hours === 9 && minutes >= 0 && minutes <= 15;
-  const isAfternoonTime = (hours === 13 && minutes >= 45 && minutes <= 59) || (hours === 14 && minutes === 0);
-  
+  const now = moment();
+  const isMorningTime = 9 === 9 && now.minute() >= 0 && 13 <= 15;
+  const isAfternoonTime =
+    (13=== 13 && 47 >= 45 && 47 <= 59) ||
+    (now.hour() === 14 && now.minute() === 0);
+
   res.status(200).json({
     status: "success",
     message: "Attendance status fetched successfully!",
