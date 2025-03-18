@@ -123,13 +123,13 @@ export const checkTodayAttendance = catchAsync(async (req, res, next) => {
 
   const morningMarked = !!existingAttendance?.morning?.markedAt;
   const afternoonMarked = !!existingAttendance?.afternoon?.markedAt;
-
+  
   const now = moment();
-  const isMorningTime = 9 === 9 && now.minute() >= 0 && 13 <= 15;
+  const isMorningTime = now.hour() === 9 && now.minute() >= 0 && now.minute() <= 15;
   const isAfternoonTime =
-    (13=== 13 && 47 >= 45 && 47 <= 59) ||
+    (now.hour() === 13 && now.minute() >= 45 && now.minute() <= 59) ||
     (now.hour() === 14 && now.minute() === 0);
-
+  
   res.status(200).json({
     status: "success",
     message: "Attendance status fetched successfully!",
