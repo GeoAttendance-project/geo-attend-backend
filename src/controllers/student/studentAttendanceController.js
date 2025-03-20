@@ -41,7 +41,7 @@ export const markAttendance = catchAsync(async (req, res, next) => {
         },
         distanceField: "distance",
         spherical: true,
-        maxDistance: 20, // Use radius value (in meters)
+        maxDistance: 35, // Use radius value (in meters)
       },
     },
   ]);
