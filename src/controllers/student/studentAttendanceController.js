@@ -55,7 +55,7 @@ export const markAttendance = catchAsync(async (req, res, next) => {
     );
   }
 
-  const maxDistance = 20; // meters
+  const maxDistance = 5;
 
   const nearbyPoint = await AttendanceLocation.aggregate([
     {
@@ -121,13 +121,21 @@ export const checkTodayAttendance = catchAsync(async (req, res, next) => {
     markedDate,
   });
 
+
+  const attendanceLocation = await AttendanceLocation.findOne({
+    year: req.student.year,
+    department: req.student.department,
+  });
+  let attendanceLocationLatitude = attendanceLocation.geoLocation.coordinates[0]
+  let attendanceLocationLongitude = attendanceLocation.geoLocation.coordinates[1]
+
   const morningMarked = !!existingAttendance?.morning?.markedAt;
   const afternoonMarked = !!existingAttendance?.afternoon?.markedAt;
-  
+
   const now = moment();
   const isMorningTime = true;
   const isAfternoonTime = true;
-  
+
   res.status(200).json({
     status: "success",
     message: "Attendance status fetched successfully!",
@@ -137,6 +145,9 @@ export const checkTodayAttendance = catchAsync(async (req, res, next) => {
     },
     isMorningTime,
     isAfternoonTime,
+    attendanceLocationLatitude,
+    attendanceLocationLongitude,
+    radius: 5,
   });
 });
 
