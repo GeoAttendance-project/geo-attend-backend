@@ -14,12 +14,18 @@ export const postAnnouncement = catchAsync(async (req, res, next) => {
     return next(new AppError(`${errors.array().at(0)?.msg}`, 400));
   }
 
-  const { title, content } = matchedData(req, {
-    locations: ["body", "params"],
-  });
+  const { title, content, department, year, attachmentLink } = matchedData(
+    req,
+    {
+      locations: ["body", "params"],
+    }
+  );
   const announcement = await attendanceAnnouncement.create({
     title,
     content,
+    department,
+    year,
+    attachmentLink,
   });
 
   res.status(201).json({
@@ -29,7 +35,9 @@ export const postAnnouncement = catchAsync(async (req, res, next) => {
 });
 
 export const getAllAnnouncement = catchAsync(async (req, res, next) => {
-  const announcements = await attendanceAnnouncement.find({});
+  const announcements = await attendanceAnnouncement
+    .find({})
+    .sort({ createdAt: -1 });
   res.status(201).json({
     status: "success",
     data: announcements,

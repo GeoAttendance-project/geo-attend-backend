@@ -14,4 +14,18 @@ export const addAnnouncementValidator = [
     .withMessage("Content is required and must be a string")
     .isLength({ min: 1 })
     .withMessage("Content must be at least 10 characters long"),
+  body("department")
+    .notEmpty()
+    .withMessage("Department is required")
+    .isIn(["IT", "ALL"])
+    .withMessage("Invalid department"),
+  body("year")
+    .notEmpty()
+    .withMessage("Year is required")
+    .isIn(["1", "2", "3", "4", "ALL"])
+    .withMessage("Invalid year"),
+  body("attachmentLink")
+    .optional()
+    .isURL()
+    .withMessage("Attachment link must be a valid URL"),
 ];
