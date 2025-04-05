@@ -55,7 +55,7 @@ export const markAttendance = catchAsync(async (req, res, next) => {
     );
   }
 
-  const maxDistance = 10;
+  const maxDistance = 7;
 
   const nearbyPoint = await AttendanceLocation.aggregate([
     {
@@ -147,7 +147,7 @@ export const checkTodayAttendance = catchAsync(async (req, res, next) => {
     isAfternoonTime,
     attendanceLocationLatitude,
     attendanceLocationLongitude,
-    radius: 10,
+    radius: 7,
   });
 });
 
